@@ -1,0 +1,29 @@
+server:
+  port: ${PORT:8081}
+
+spring:
+  application:
+    name: mcp-digifly
+  ai:
+    mcp:
+      server:
+        name: "digifly-mcp-server"
+        version: "1.0.0"
+        protocol: STREAMABLE
+  rabbitmq:
+    listener:
+      simple:
+        missing-queues-fatal: false
+
+airport:
+  events:
+    exchange: airport.events
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  health:
+    rabbit:
+      enabled: false

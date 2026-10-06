@@ -1,0 +1,10 @@
+com/waisl/digifly/DigiflyApplication.class
+com/waisl/digifly/data/MockFlightData.class
+com/waisl/digifly/tools/FlightTools.class
+com/waisl/digifly/events/RabbitConfig.class
+com/waisl/digifly/events/FlightSimulator.class
+com/waisl/digifly/data/FlightRecord$Status.class
+com/waisl/digifly/events/FlightEventPublisher.class
+com/waisl/digifly/data/FlightRecord.class
+com/waisl/digifly/events/DebugController.class
+com/waisl/digifly/data/FlightRecord$Direction.class

@@ -1,0 +1,7 @@
+---
+applications:
+  - name: waisl-agent
+    buildpacks:
+      - agent_buildpack
+    memory: 512M
+    instances: 1

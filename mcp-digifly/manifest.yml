@@ -1,0 +1,12 @@
+---
+applications:
+  - name: mcp-digifly
+    path: target/mcp-digifly.jar
+    buildpacks:
+      - java_buildpack_offline
+    memory: 2G
+    instances: 1
+    health-check-type: http
+    health-check-http-endpoint: /actuator/health
+    env:
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 21.+ } }'
