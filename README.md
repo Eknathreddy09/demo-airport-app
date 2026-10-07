@@ -1,4 +1,4 @@
-# Airport Passenger Assistant — Agentic Demo
+# Airport Assistant — Agentic Demo
 
 An agentic demo for an airport customer, built to run natively on **Tanzu Platform for
 Cloud Foundry**: `cf push`-deployable services, the platform's **Agent Buildpack**, MCP
