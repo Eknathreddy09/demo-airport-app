@@ -5,6 +5,7 @@ import com.airport.parking.data.ParkingZone;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -22,7 +23,9 @@ public class ParkingSimulator {
 
     @Scheduled(fixedDelay = 50_000, initialDelay = 25_000)
     public void simulateRandomEvent() {
-        data.allZones().stream().findAny().ifPresent(z -> simulateSlotFreed(z.getZoneCode()));
+        List<ParkingZone> zones = data.allZones().stream().toList();
+        if (zones.isEmpty()) return;
+        simulateSlotFreed(zones.get(random.nextInt(zones.size())).getZoneCode());
     }
 
     public Map<String, Object> simulateSlotFreed(String zoneCode) {

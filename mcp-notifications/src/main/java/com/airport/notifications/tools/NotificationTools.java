@@ -18,17 +18,17 @@ public class NotificationTools {
         this.buffer = buffer;
     }
 
-    private static final int DEFAULT_LIMIT = 20;
+    private static final int DEFAULT_LIMIT = 8;
     private static final int MAX_LIMIT = 200;
 
     @McpTool(description = "Get recent cross-domain airport alerts/events (flight delays, gate changes, parking updates, billing "
             + "events), newest first. Use this proactively when asked for updates, alerts, or 'what's new'. Returns at most "
-            + "`limit` alerts (default 20) spanning whatever categories are actually present - summarize across them, don't just "
-            + "report the first one.", generateOutputSchema = false)
+            + "`limit` alerts (default 8) spanning whatever categories are actually present - summarize one or two items from "
+            + "EACH category present, don't just report the first item and ignore the rest.", generateOutputSchema = false)
     public List<Map<String, Object>> getRecentAlerts(
             @McpToolParam(description = "Only return alerts after this ISO-8601 timestamp, e.g. 2026-08-20T10:00:00Z. Leave blank for the most recent alerts regardless of age.", required = false) String since,
             @McpToolParam(description = "Filter by category prefix: flight, parking, grms, or billing. Leave blank for all categories.", required = false) String category,
-            @McpToolParam(description = "Max number of alerts to return, newest first (default 20, max 200).", required = false) String limit) {
+            @McpToolParam(description = "Max number of alerts to return, newest first (default 8, max 200).", required = false) String limit) {
         Instant sinceInstant = null;
         if (since != null && !since.isBlank()) {
             try {
