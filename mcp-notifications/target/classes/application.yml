@@ -1,0 +1,30 @@
+server:
+  port: ${PORT:8085}
+
+spring:
+  application:
+    name: mcp-notifications
+  ai:
+    mcp:
+      server:
+        name: "notifications-mcp-server"
+        version: "1.0.0"
+        protocol: STREAMABLE
+  rabbitmq:
+    listener:
+      simple:
+        missing-queues-fatal: false
+
+airport:
+  events:
+    exchange: airport.events
+    queue: airport.notifications.queue
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  health:
+    rabbit:
+      enabled: false

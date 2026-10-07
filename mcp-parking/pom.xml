@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.waisl</groupId>
-        <artifactId>waisl-airport-demo</artifactId>
+        <groupId>com.airport</groupId>
+        <artifactId>airport-demo</artifactId>
         <version>1.0.0</version>
     </parent>
 

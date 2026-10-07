@@ -1,0 +1,7 @@
+---
+applications:
+  - name: airport-agent
+    buildpacks:
+      - agent_buildpack
+    memory: 512M
+    instances: 1

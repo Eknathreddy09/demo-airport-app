@@ -1,4 +1,4 @@
-# WAISL Airport Passenger Assistant — Agentic Demo
+# Airport Passenger Assistant — Agentic Demo
 
 An agentic demo for an airport customer, built to run natively on **Tanzu Platform for
 Cloud Foundry**: `cf push`-deployable services, the platform's **Agent Buildpack**, MCP
@@ -13,15 +13,15 @@ bus so the demo has a proactive, event-driven story rather than a static Q&A bot
 ## Architecture
 
 ```
-                         ┌─────────────────────────┐
-                         │   waisl-agent            │  Agent Buildpack (AGENTS.md + skills)
-                         │   (built-in chat UI)      │  bound to: demo-ai-waisl, waisl-mcp-gateway
-                         └───────────┬───────────────┘
+                         ┌──────────────────────┐
+                         │  airport-agent       │  Agent Buildpack (AGENTS.md + skills)
+                         │  (built-in chat UI)  │  bound to: demo-ai-airport, airport-mcp-gateway
+                         └──────────┬───────────┘
                                      │ MCP (single endpoint)
-                         ┌───────────▼───────────────┐
-                         │   waisl-mcp-gateway         │  MCP Gateway service instance
-                         │   (Tech Preview)            │
-                         └──┬───────┬───────┬───────┬──┘
+                         ┌──────────▼────────────┐
+                         │  airport-mcp-gateway  │  MCP Gateway service instance
+                         │  (Tech Preview)       │
+                         └─────┬─────┬─────┬────┬────┘
                 registers   │       │       │       │  registers
               ┌─────────────┘   ┌───┘   ┌───┘       └───────────┐
         ┌─────▼─────┐    ┌──────▼────┐ ┌─▼───────┐   ┌──────────▼────────┐
@@ -31,25 +31,25 @@ bus so the demo has a proactive, event-driven story rather than a static Q&A bot
               │ publish        │ publish     │ publish          │ publish
               └────────────────┴─────┬───────┴──────────────────┘
                                       ▼
-                          ┌───────────────────────┐
-                          │   waisl-rabbitmq        │  exchange: airport.events
-                          │   (RabbitMQ tile)       │  keys: flight.*, parking.*,
-                          └───────────┬─────────────┘        grms.*, billing.*
+                          ┌─────────▼──────────┐
+                          │  airport-rabbitmq  │  exchange: airport.events
+                          │  (RabbitMQ tile)   │  keys: flight.*, parking.*,
+                          └─────────┬──────────┘        grms.*, billing.*
                                       │ consume (queue bound to #)
                           ┌───────────▼─────────────┐
                           │   mcp-notifications       │  also registered on gateway
                           │   exposes getRecentAlerts  │
                           └───────────────────────────┘
 
-                          waisl-agent also bound to:
-                          demo-ai-waisl  → genai service instance → llama3.2
+                          airport-agent also bound to:
+                          demo-ai-airport  → genai service instance → llama3.2
 ```
 
 ## Components
 
 | App | Type | Purpose |
 |---|---|---|
-| `waisl-agent` | Agent Buildpack (config only, no code) | Passenger/staff conversational assistant with built-in chat UI |
+| `airport-agent` | Agent Buildpack (config only, no code) | Passenger/staff conversational assistant with built-in chat UI |
 | `mcp-digifly` | Spring Boot + Spring AI MCP server | Flight status, departures/arrivals, gate lookup (FIDS) |
 | `mcp-parking` | Spring Boot + Spring AI MCP server | Parking availability, booking, ticket status, payment |
 | `mcp-grms` | Spring Boot + Spring AI MCP server | Gate assignment, ground equipment, staff availability, gate reassignment |
@@ -91,9 +91,9 @@ the `path:` in each module's `manifest.yml`).
 
 ```bash
 # 1. Provision services (adjust plan/offering names per the prerequisite check above)
-cf create-service genai <plan-with-llama3.2> demo-ai-waisl
-cf create-service mcp-gateway gateway waisl-mcp-gateway --wait
-cf create-service <rabbitmq-offering> <plan> waisl-rabbitmq
+cf create-service genai <plan-with-llama3.2> demo-ai-airport
+cf create-service mcp-gateway gateway airport-mcp-gateway --wait
+cf create-service <rabbitmq-offering> <plan> airport-rabbitmq
 
 # 2. Push the 5 MCP server apps
 cf push -f mcp-digifly/manifest.yml
@@ -113,33 +113,33 @@ cf map-route mcp-gab apps.internal --hostname mcp-gab
 cf map-route mcp-notifications apps.internal --hostname mcp-notifications
 
 # 4. Register each on the gateway
-cf bind-service mcp-digifly waisl-mcp-gateway -c '{"metadata":{"description":"Flight info (DIGI FLY/FIDS)"}}'
-cf bind-service mcp-parking waisl-mcp-gateway -c '{"metadata":{"description":"Parking management"}}'
-cf bind-service mcp-grms waisl-mcp-gateway -c '{"metadata":{"description":"Ground resource management"}}'
-cf bind-service mcp-gab waisl-mcp-gateway -c '{"metadata":{"description":"General airport billing"}}'
-cf bind-service mcp-notifications waisl-mcp-gateway -c '{"metadata":{"description":"Cross-domain alerts"}}'
+cf bind-service mcp-digifly airport-mcp-gateway -c '{"metadata":{"description":"Flight info (DIGI FLY/FIDS)"}}'
+cf bind-service mcp-parking airport-mcp-gateway -c '{"metadata":{"description":"Parking management"}}'
+cf bind-service mcp-grms airport-mcp-gateway -c '{"metadata":{"description":"Ground resource management"}}'
+cf bind-service mcp-gab airport-mcp-gateway -c '{"metadata":{"description":"General airport billing"}}'
+cf bind-service mcp-notifications airport-mcp-gateway -c '{"metadata":{"description":"Cross-domain alerts"}}'
 
 # 5. Bind RabbitMQ to all 5 (4 publish, 1 consumes)
-cf bind-service mcp-digifly waisl-rabbitmq
-cf bind-service mcp-parking waisl-rabbitmq
-cf bind-service mcp-grms waisl-rabbitmq
-cf bind-service mcp-gab waisl-rabbitmq
-cf bind-service mcp-notifications waisl-rabbitmq
+cf bind-service mcp-digifly airport-rabbitmq
+cf bind-service mcp-parking airport-rabbitmq
+cf bind-service mcp-grms airport-rabbitmq
+cf bind-service mcp-gab airport-rabbitmq
+cf bind-service mcp-notifications airport-rabbitmq
 
 cf restage mcp-digifly && cf restage mcp-parking && cf restage mcp-grms && cf restage mcp-gab && cf restage mcp-notifications
 
 # 6. Push and bind the agent last (so the gateway already has all servers registered).
-#    waisl-agent's manifest intentionally has no `services:` block - the gateway bind
+#    airport-agent's manifest intentionally has no `services:` block - the gateway bind
 #    needs an internal route to exist first (same requirement as step 3), and cf push
 #    would otherwise try to bind as part of the same push, before that route exists.
-cf push -f waisl-agent/manifest.yml
-cf map-route waisl-agent apps.internal --hostname waisl-agent
-cf bind-service waisl-agent demo-ai-waisl
-cf bind-service waisl-agent waisl-mcp-gateway
-cf restage waisl-agent
+cf push -f airport-agent/manifest.yml
+cf map-route airport-agent apps.internal --hostname airport-agent
+cf bind-service airport-agent demo-ai-airport
+cf bind-service airport-agent airport-mcp-gateway
+cf restage airport-agent
 ```
 
-Then open the `waisl-agent` route — the Agent Buildpack ships a built-in chat UI.
+Then open the `airport-agent` route — the Agent Buildpack ships a built-in chat UI.
 
 > The exact `-c` binding config schema for a plain, unauthenticated MCP server may differ
 > from the `auth.service-instance` pattern used for externally-authenticated servers

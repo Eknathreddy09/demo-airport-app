@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.waisl</groupId>
-    <artifactId>waisl-airport-demo</artifactId>
+    <groupId>com.airport</groupId>
+    <artifactId>airport-demo</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
-    <name>WAISL Airport Agentic Demo</name>
+    <name>Airport Agentic Demo</name>
 
     <modules>
         <module>mcp-digifly</module>

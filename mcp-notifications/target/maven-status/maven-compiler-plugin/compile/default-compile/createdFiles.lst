@@ -1,5 +1,5 @@
-com/waisl/notifications/events/RabbitConfig.class
-com/waisl/notifications/events/AlertBuffer.class
-com/waisl/notifications/tools/NotificationTools.class
-com/waisl/notifications/NotificationsApplication.class
-com/waisl/notifications/events/AlertEventListener.class
+com/airport/notifications/events/RabbitConfig.class
+com/airport/notifications/events/AlertBuffer.class
+com/airport/notifications/NotificationsApplication.class
+com/airport/notifications/tools/NotificationTools.class
+com/airport/notifications/events/AlertEventListener.class
