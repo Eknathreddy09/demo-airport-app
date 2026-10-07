@@ -136,15 +136,40 @@ cf push -f airport-agent/manifest.yml
 cf map-route airport-agent apps.internal --hostname airport-agent
 cf bind-service airport-agent demo-ai-airport
 cf bind-service airport-agent airport-mcp-gateway
+
+# 7. The bind in step 6 only registers airport-agent AS a server on the gateway (its own
+#    /airport-agent/mcp route) - it does NOT make the agent discover the other 5 servers.
+#    The Agent Buildpack's MCP discovery only scans VCAP_SERVICES entries tagged
+#    `mcp-server`; the managed mcp-gateway binding is tagged `mcp-gateway`/
+#    `tanzu-mcp-gateway` instead, so it's invisible to discovery and the chat UI's "MCP
+#    Servers" panel shows "No MCP servers connected" even though the gateway itself looks
+#    fine. Give the agent one user-provided service per domain server, each tagged
+#    mcp-server and pointing at its gateway-routed URL (listed at
+#    https://airport-mcp-gateway.<your-domain>/mcp-servers.json):
+GW=https://airport-mcp-gateway.<your-domain>
+cf create-user-provided-service mcp-digifly-upstream -t mcp-server -p "{\"url\":\"$GW/mcp-digifly/mcp\"}"
+cf create-user-provided-service mcp-parking-upstream -t mcp-server -p "{\"url\":\"$GW/mcp-parking/mcp\"}"
+cf create-user-provided-service mcp-grms-upstream -t mcp-server -p "{\"url\":\"$GW/mcp-grms/mcp\"}"
+cf create-user-provided-service mcp-gab-upstream -t mcp-server -p "{\"url\":\"$GW/mcp-gab/mcp\"}"
+cf create-user-provided-service mcp-notifications-upstream -t mcp-server -p "{\"url\":\"$GW/mcp-notifications/mcp\"}"
+
+cf bind-service airport-agent mcp-digifly-upstream
+cf bind-service airport-agent mcp-parking-upstream
+cf bind-service airport-agent mcp-grms-upstream
+cf bind-service airport-agent mcp-gab-upstream
+cf bind-service airport-agent mcp-notifications-upstream
+
 cf restage airport-agent
 ```
 
-Then open the `airport-agent` route — the Agent Buildpack ships a built-in chat UI.
+Then open the `airport-agent` route — the Agent Buildpack ships a built-in chat UI. The
+"MCP Servers" panel should list all 5 domain servers as connected (each tagged `VCAP`),
+and tool calls should show up there as they're invoked during the conversation.
 
 > The exact `-c` binding config schema for a plain, unauthenticated MCP server may differ
 > from the `auth.service-instance` pattern used for externally-authenticated servers
 > (e.g. GitHub) — confirm the expected shape against your foundation's MCP Gateway docs
-> if step 3 rejects the metadata-only payload above.
+> if step 4 rejects the metadata-only payload above.
 
 ## Demo script
 
