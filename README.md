@@ -1,8 +1,6 @@
-# Airport Assistant — Agentic Demo
+# Airport Assistant - Agentic Demo
 
-An agentic demo for an airport customer, built to run natively on **Tanzu Platform for
-Cloud Foundry**: `cf push`-deployable services, the platform's **Agent Buildpack**, MCP
-servers running as their own app instances, the **MCP Gateway** brokering access to them,
+An agentic demo for an airport customer, built to run natively on **Tanzu Platform**: `cf push`-deployable services, the platform's **Agent Buildpack**, MCP servers running as their own app instances, the **MCP Gateway** brokering access to them,
 an **AI Services (GenAI)** instance backed by llama3.2, and **RabbitMQ** as an async event
 bus so the demo has a proactive, event-driven story rather than a static Q&A bot.
 
@@ -96,6 +94,7 @@ cf create-service mcp-gateway gateway airport-mcp-gateway --wait
 cf create-service <rabbitmq-offering> <plan> airport-rabbitmq
 
 # 2. Push the 5 MCP server apps
+
 cf push -f mcp-digifly/manifest.yml
 cf push -f mcp-parking/manifest.yml
 cf push -f mcp-grms/manifest.yml
@@ -106,6 +105,7 @@ cf push -f mcp-notifications/manifest.yml
 #    map one to each server before binding, or the bind fails with "the bound application
 #    must have an internal route". This is in addition to each app's default external
 #    route, which stays intact for the /debug/... endpoints used in the demo script.
+
 cf map-route mcp-digifly apps.internal --hostname mcp-digifly
 cf map-route mcp-parking apps.internal --hostname mcp-parking
 cf map-route mcp-grms apps.internal --hostname mcp-grms
@@ -113,6 +113,7 @@ cf map-route mcp-gab apps.internal --hostname mcp-gab
 cf map-route mcp-notifications apps.internal --hostname mcp-notifications
 
 # 4. Register each on the gateway
+
 cf bind-service mcp-digifly airport-mcp-gateway -c '{"metadata":{"description":"Flight info (DIGI FLY/FIDS)"}}'
 cf bind-service mcp-parking airport-mcp-gateway -c '{"metadata":{"description":"Parking management"}}'
 cf bind-service mcp-grms airport-mcp-gateway -c '{"metadata":{"description":"Ground resource management"}}'
@@ -120,6 +121,7 @@ cf bind-service mcp-gab airport-mcp-gateway -c '{"metadata":{"description":"Gene
 cf bind-service mcp-notifications airport-mcp-gateway -c '{"metadata":{"description":"Cross-domain alerts"}}'
 
 # 5. Bind RabbitMQ to all 5 (4 publish, 1 consumes)
+
 cf bind-service mcp-digifly airport-rabbitmq
 cf bind-service mcp-parking airport-rabbitmq
 cf bind-service mcp-grms airport-rabbitmq
@@ -132,6 +134,7 @@ cf restage mcp-digifly && cf restage mcp-parking && cf restage mcp-grms && cf re
 #    airport-agent's manifest intentionally has no `services:` block - the gateway bind
 #    needs an internal route to exist first (same requirement as step 3), and cf push
 #    would otherwise try to bind as part of the same push, before that route exists.
+
 cf push -f airport-agent/manifest.yml
 cf map-route airport-agent apps.internal --hostname airport-agent
 cf bind-service airport-agent demo-ai-airport
@@ -146,6 +149,7 @@ cf bind-service airport-agent airport-mcp-gateway
 #    fine. Give the agent one user-provided service per domain server, each tagged
 #    mcp-server and pointing at its gateway-routed URL (listed at
 #    https://airport-mcp-gateway.<your-domain>/mcp-servers.json):
+
 GW=https://airport-mcp-gateway.<your-domain>
 cf create-user-provided-service mcp-digifly-upstream -t mcp-server -p "{\"url\":\"$GW/mcp-digifly/mcp\"}"
 cf create-user-provided-service mcp-parking-upstream -t mcp-server -p "{\"url\":\"$GW/mcp-parking/mcp\"}"
